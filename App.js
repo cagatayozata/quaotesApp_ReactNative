@@ -15,28 +15,58 @@ export default class FlexDimensionsBasics extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      quoteText: studentList[0].quoteText,
-      quoteAuthor: studentList[0].quoteAuthor,
+      quoteID: studentList[0].id,
+      quoteText: studentList[0].text,
+      quoteAuthor: studentList[0].author,
       clipboardContent: null,
+      likedQuotes: []
     };
   }
 
-  prepareQuote() {
-    let random = Math.floor(Math.random() * (5000 - 1 + 1)) + 1;
+  randomQuote() {
+    // generate random number
+    let random = Math.floor(Math.random() * (5420 - 1 + 1)) + 1;
+
+    // set state - id, text, author
     this.setState({
-      quoteText: studentList[random].quoteText,
-      quoteAuthor: studentList[random].quoteAuthor
+      quoteID: studentList[random].id,
+      quoteText: studentList[random].text,
+      quoteAuthor: studentList[random].author
     });
-    console.log(random);
+  }
+
+  likeQuote() {
+    // recieve selected id
+    let selectedID = this.state.quoteID;
+
+    // recieve liked quotes list from state
+    let likedQuotesArr = [];
+    likedQuotesArr = this.state.likedQuotes;
+
+    // control that list include selected id or not
+    let existControl = true;
+    for (let index = 0; index < likedQuotesArr.length; index++) {
+      if (selectedID == likedQuotesArr[index]) {
+        existControl = false;
+      }
+    }
+
+    // if not exist, add id to list, then set state
+    if (existControl) {
+      likedQuotesArr.push(this.state.quoteID);
+      this.setState({
+        likedQuotes: likedQuotesArr
+      });
+    }
   }
 
   printQuote() {
     console.log(this.state.quoteText);
   }
 
-  readFromClipboard = async () => {   
+  readFromClipboard = async () => {
     await Clipboard.setString(this.state.quoteText);
-    alert("Kopyalandı!")
+    alert("Kopyalandı!");
   };
 
   render() {
@@ -110,6 +140,7 @@ export default class FlexDimensionsBasics extends Component {
             }}
           >
             <View
+              onStartShouldSetResponder={() => this.likeQuote()}
               style={{
                 flex: 2,
                 alignItems: "center"
@@ -128,7 +159,7 @@ export default class FlexDimensionsBasics extends Component {
               </Text>
             </View>
             <View
-              onStartShouldSetResponder={() => this.prepareQuote()}
+              onStartShouldSetResponder={() => this.randomQuote()}
               style={{
                 flex: 2,
                 alignItems: "center"
@@ -141,7 +172,12 @@ export default class FlexDimensionsBasics extends Component {
                 style={{ paddingBottom: 10 }}
               />
               <Text
-                style={{ fontSize: 20, fontWeight: "600",textAlign: "center", color: "white" }}
+                style={{
+                  fontSize: 20,
+                  fontWeight: "600",
+                  textAlign: "center",
+                  color: "white"
+                }}
               >
                 Rastgele Söz
               </Text>
