@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Button, View, Text, ImageBackground, Clipboard } from "react-native";
+import { Button, View, Text, ImageBackground, Clipboard, Share } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import studentList from "../assets/data/quotes.json";
 
@@ -7,25 +7,84 @@ export default class HomeScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      quoteID: studentList[0].id,
-      quoteText: studentList[0].text,
-      quoteAuthor: studentList[0].author,
-      clipboardContent: null,
-      likedQuotes: []
+      quoteID: "",
+      quoteText: "",
+      quoteAuthor: "",
+      isFavorite: false,
+      likedQuotes: [
+        123,
+        4012,
+        3120,
+        123,
+        1233,
+        412,
+        123,
+        4123,
+        444,
+        567,
+        24,
+        912,
+        123,
+        4123,
+        444,
+        567,
+        24,
+        912
+      ]
     };
   }
+
+  componentDidMount() {
+    // get first random quote
+    this.randomQuote();
+
+    // get liked quotes
+    this.getLikedQuotes();
+  }
+
+  // componentDidUpdate(prevProps, prevState) {
+  //   if (this.props.route.params) {
+  //     this.prepareLikedQuote(prevState);
+  //   }
+  // }
 
   randomQuote() {
     // generate random number
     let random = Math.floor(Math.random() * (5420 - 1 + 1)) + 1;
+    let tempFavorited = false;
+
+    // recieve liked quotes list from state
+    let likedQuotesArr = [];
+    likedQuotesArr = this.state.likedQuotes;
+
+    for (let index = 0; index < likedQuotesArr.length; index++) {
+      if (random == likedQuotesArr[index]) {
+        favorited = true;
+      }
+    }
 
     // set state - id, text, author
     this.setState({
       quoteID: studentList[random].id,
       quoteText: studentList[random].text,
-      quoteAuthor: studentList[random].author
+      quoteAuthor: studentList[random].author,
+      isFavorite: tempFavorited
     });
   }
+
+  prepareLikedQuote(prevState) {
+    let id = this.props.route.params["favoritedQuoteID"];
+    if (this.state.quoteID === prevState.quoteID) {
+      this.setState({
+        quoteID: studentList[id].id,
+        quoteText: studentList[id].text,
+        quoteAuthor: studentList[id].author
+      });
+    } else {
+    }
+  }
+
+  getLikedQuotes() {}
 
   likeQuote() {
     // recieve selected id
@@ -49,10 +108,23 @@ export default class HomeScreen extends Component {
       this.setState({
         likedQuotes: likedQuotesArr
       });
+    } else {
+      likedQuotesArr.pop(this.state.quoteID);
+      this.setState({
+        likedQuotes: likedQuotesArr
+      });
     }
-
-    console.log(this.state.likedQuotes)
+    console.log(this.state.likedQuotes);
   }
+
+  onSharePress = url => {
+    Share.share({
+      title: "Paylaş",
+      message: this.state.quoteText + " - " + this.state.quoteAuthor
+    })
+      .then(res => console.log(res))
+      .catch(error => console.log(error));
+  };
 
   navigateToFavorites() {
     this.props.navigation.navigate("Favorites");
@@ -72,7 +144,7 @@ export default class HomeScreen extends Component {
       <ImageBackground
         source={{
           uri:
-            "https://mir-s3-cdn-cf.behance.net/project_modules/disp/496ecb14589707.562865d064f9e.png"
+            "/Users/cagatayozata/DocumentsL/Mobile Projects/quaotesApp_ReactNative/assets/images/bg.png"
         }}
         style={{ width: "100%", height: "100%" }}
       >
@@ -97,6 +169,7 @@ export default class HomeScreen extends Component {
                 onStartShouldSetResponder={() => this.navigateToFavorites()}
                 size={30}
               />
+              {this.state.isFavorite}
             </View>
             <View
               style={{
@@ -195,6 +268,7 @@ export default class HomeScreen extends Component {
                 flex: 2,
                 alignItems: "center"
               }}
+              onStartShouldSetResponder={() => this.onSharePress()}
             >
               <Icon
                 name="ios-share"

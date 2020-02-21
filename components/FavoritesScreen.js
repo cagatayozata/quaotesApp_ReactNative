@@ -5,7 +5,8 @@ import {
   Text,
   ImageBackground,
   FlatList,
-  StyleSheet
+  StyleSheet,
+  TouchableHighlight
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import studentList from "../assets/data/quotes.json";
@@ -48,6 +49,11 @@ export default class FavoritesScreen extends Component {
     this.props.navigation.navigate("Home");
   }
 
+  navigateToQuote(id) {
+    console.log(id);
+    this.props.navigation.navigate("Home", { favoritedQuoteID: id });
+  }
+
   navigateToSettings() {
     this.props.navigation.navigate("Settings");
   }
@@ -57,7 +63,7 @@ export default class FavoritesScreen extends Component {
       <ImageBackground
         source={{
           uri:
-            "https://mir-s3-cdn-cf.behance.net/project_modules/disp/496ecb14589707.562865d064f9e.png"
+            "/Users/cagatayozata/DocumentsL/Mobile Projects/quaotesApp_ReactNative/assets/images/bg.png"
         }}
         style={{ width: "100%", height: "100%" }}
       >
@@ -67,7 +73,7 @@ export default class FavoritesScreen extends Component {
               flex: 1,
               flexDirection: "row",
               justifyContent: "space-between",
-              paddingTop: 50
+              alignItems: "center"
             }}
           >
             <View
@@ -103,14 +109,23 @@ export default class FavoritesScreen extends Component {
               flex: 5,
               justifyContent: "center",
               alignItems: "center",
-              paddingBottom: 90
+              paddingBottom: 70
             }}
           >
             <View>
               <FlatList
                 data={this.state.likedQuotes}
                 renderItem={({ item }) => (
-                  <Text style={styles.item}>{studentList[item].text}</Text>
+                  <TouchableHighlight
+                    onPress={() => this.navigateToQuote(studentList[item].id)}
+                  >
+                    <View style={styles.item}>
+                      <Text style={styles.title}>{studentList[item].text}</Text>
+                      <Text style={styles.author}>
+                        {studentList[item].author}
+                      </Text>
+                    </View>
+                  </TouchableHighlight>
                 )}
                 keyExtractor={(item, index) => index.toString()}
               />
@@ -123,22 +138,22 @@ export default class FavoritesScreen extends Component {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 22
-  },
-  sectionHeader: {
-    paddingTop: 2,
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingBottom: 2,
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#fff"
-  },
   item: {
-    padding: 10,
+    paddingBottom: 20,
+    marginBottom: 20,
     fontSize: 18,
-    height: 44
+    borderRadius: 2,
+    borderBottomWidth: 0.5,
+    borderColor: "rgba(255, 255, 255, .4)"
+  },
+  title: {
+    paddingBottom: 5,
+    fontSize: 18,
+    color: "white"
+  },
+  author: {
+    fontSize: 14,
+    textAlign: "right",
+    color: "white"
   }
 });
