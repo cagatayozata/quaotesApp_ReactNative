@@ -5,6 +5,7 @@ import {
   Text,
   ImageBackground,
   Clipboard,
+  AsyncStorage,
   Share
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
@@ -28,17 +29,34 @@ export default class HomeScreen extends Component {
     this.randomQuote();
 
     // get liked quotes
-    this.getLikedQuotesFromDB();
+    this.getLikedQuotes();
   }
 
-  getLikedQuotesFromDB() {
+  componentDidUpdate() {
+    // get liked quotes
+    this.getLikedQuotes();
+  }
+
+  getLikedQuotes = async () => {
     // recieve liked list from DB, then set state
-    this.setState({
-      likedQuotes: [123, 4012, 3120]
-    });
-  }
+    try {
+      const value = await AsyncStorage.getItem("test1");
+      if (value !== null) {
+        this.setState({
+          likedQuotes: JSON.parse(value)
+        });
+      }
+    } catch (error) {}
+  };
 
-  updateLikedQuotesFromDB() {}
+  updateLikedQuotes = async () => {
+    try {
+      await AsyncStorage.setItem(
+        "test1",
+        JSON.stringify(this.state.likedQuotes)
+      );
+    } catch (error) {}
+  };
 
   randomQuote() {
     // calculate length of entire json
@@ -106,7 +124,7 @@ export default class HomeScreen extends Component {
     }
 
     // update DB for liked list
-    this.updateLikedQuotesFromDB();
+    this.updateLikedQuotes();
   }
 
   onSharePress() {
@@ -135,10 +153,7 @@ export default class HomeScreen extends Component {
     const isFavorited = this.state.isFavorite;
 
     return (
-      <ImageBackground
-        source={img}
-        style={{ width: "100%", height: "100%" }}
-      >
+      <ImageBackground source={img} style={{ width: "100%", height: "100%" }}>
         <View style={{ flex: 1, paddingRight: 50, paddingLeft: 50 }}>
           <View
             style={{
