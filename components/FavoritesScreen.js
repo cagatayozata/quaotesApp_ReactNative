@@ -7,6 +7,7 @@ import {
   FlatList,
   StyleSheet,
   TouchableHighlight,
+  AsyncStorage,
   Share
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
@@ -23,10 +24,28 @@ export default class FavoritesScreen extends Component {
 
   // get like list and set state
   componentDidMount() {
-    this.setState({
-      likedQuotes: [123, 4012, 3120, 4612, 1233]
-    });
+    this.getLikedQuotes();
   }
+
+  getLikedQuotes = async () => {
+    try {
+      const value = await AsyncStorage.getItem("test1");
+      if (value !== null) {
+        this.setState({
+          likedQuotes: JSON.parse(value)
+        });
+      }
+    } catch (error) {}
+  };
+
+  updateLikedQuotes = async () => {
+    try {
+      await AsyncStorage.setItem(
+        "test1",
+        JSON.stringify(this.state.likedQuotes)
+      );
+    } catch (error) {}
+  };
 
   dislikeQuote(id) {
     // recieve liked quotes list from state
@@ -44,6 +63,9 @@ export default class FavoritesScreen extends Component {
     this.setState({
       likedQuotes: likedQuotesArr
     });
+
+    // update local storage
+    this.updateLikedQuotes();
 
     console.log(this.state.likedQuotes);
   }
