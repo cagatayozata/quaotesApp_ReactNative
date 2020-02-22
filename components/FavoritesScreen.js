@@ -6,43 +6,55 @@ import {
   ImageBackground,
   FlatList,
   StyleSheet,
-  TouchableHighlight
+  TouchableHighlight,
+  Share
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import studentList from "../assets/data/quotes.json";
+import img from "../assets/images/bg.png";
 
 export default class FavoritesScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      likedQuotes: [
-        123,
-        4012,
-        3120,
-        123,
-        1233,
-        412,
-        123,
-        4123,
-        444,
-        567,
-        24,
-        912,
-        123,
-        4123,
-        444,
-        567,
-        24,
-        912
-      ],
-      allQuotes: []
+      likedQuotes: []
     };
   }
 
+  // get like list and set state
   componentDidMount() {
-    this.setState = {
-      likedQuotes: [123, 4012, 3120]
-    };
+    this.setState({
+      likedQuotes: [123, 4012, 3120, 4612, 1233]
+    });
+  }
+
+  dislikeQuote(id) {
+    // recieve liked quotes list from state
+    let likedQuotesArr = [];
+    likedQuotesArr = this.state.likedQuotes;
+
+    // delete selected
+    for (let index = 0; index < likedQuotesArr.length; index++) {
+      if (id == likedQuotesArr[index]) {
+        likedQuotesArr.splice(index, 1);
+      }
+    }
+
+    // set state updated list
+    this.setState({
+      likedQuotes: likedQuotesArr
+    });
+
+    console.log(this.state.likedQuotes);
+  }
+
+  clickShare(msg) {
+    Share.share({
+      title: "Paylaş",
+      message: msg
+    })
+      .then(res => console.log(res))
+      .catch(error => console.log(error));
   }
 
   navigateToHome() {
@@ -51,7 +63,7 @@ export default class FavoritesScreen extends Component {
 
   navigateToQuote(id) {
     console.log(id);
-    this.props.navigation.navigate("Home", { favoritedQuoteID: id });
+    this.props.navigation.navigate("Home");
   }
 
   navigateToSettings() {
@@ -60,13 +72,7 @@ export default class FavoritesScreen extends Component {
 
   render() {
     return (
-      <ImageBackground
-        source={{
-          uri:
-            "/Users/cagatayozata/DocumentsL/Mobile Projects/quaotesApp_ReactNative/assets/images/bg.png"
-        }}
-        style={{ width: "100%", height: "100%" }}
-      >
+      <ImageBackground source={img} style={{ width: "100%", height: "100%" }}>
         <View style={{ flex: 1, paddingRight: 50, paddingLeft: 50 }}>
           <View
             style={{
@@ -107,29 +113,68 @@ export default class FavoritesScreen extends Component {
           <View
             style={{
               flex: 5,
-              justifyContent: "center",
-              alignItems: "center",
               paddingBottom: 70
             }}
           >
-            <View>
-              <FlatList
-                data={this.state.likedQuotes}
-                renderItem={({ item }) => (
-                  <TouchableHighlight
-                    onPress={() => this.navigateToQuote(studentList[item].id)}
+            <FlatList
+              data={this.state.likedQuotes}
+              renderItem={({ item }) => (
+                <View style={styles.item}>
+                  <View
+                    style={{
+                      flex: 5
+                    }}
                   >
-                    <View style={styles.item}>
+                    <View>
                       <Text style={styles.title}>{studentList[item].text}</Text>
                       <Text style={styles.author}>
                         {studentList[item].author}
                       </Text>
                     </View>
-                  </TouchableHighlight>
-                )}
-                keyExtractor={(item, index) => index.toString()}
-              />
-            </View>
+                  </View>
+                  <View
+                    style={{
+                      flex: 2,
+                      flexDirection: "row"
+                    }}
+                  >
+                    <View
+                      style={{
+                        flex: 2,
+                        alignItems: "flex-end"
+                      }}
+                    >
+                      <Icon
+                        name="ios-heart-dislike"
+                        color="#fff"
+                        size={25}
+                        style={{ paddingBottom: 10 }}
+                        onStartShouldSetResponder={() =>
+                          this.dislikeQuote(studentList[item].id)
+                        }
+                      />
+                    </View>
+                    <View
+                      style={{
+                        flex: 2,
+                        alignItems: "flex-end"
+                      }}
+                    >
+                      <Icon
+                        name="ios-share"
+                        color="#fff"
+                        size={25}
+                        style={{ paddingBottom: 10 }}
+                        onStartShouldSetResponder={() =>
+                          this.clickShare(studentList[item].text)
+                        }
+                      />
+                    </View>
+                  </View>
+                </View>
+              )}
+              keyExtractor={(item, index) => index.toString()}
+            />
           </View>
         </View>
       </ImageBackground>
@@ -144,7 +189,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     borderRadius: 2,
     borderBottomWidth: 0.5,
-    borderColor: "rgba(255, 255, 255, .4)"
+    borderColor: "rgba(255, 255, 255, .4)",
+    flex: 1,
+    flexDirection: "row"
   },
   title: {
     paddingBottom: 5,
@@ -153,7 +200,6 @@ const styles = StyleSheet.create({
   },
   author: {
     fontSize: 14,
-    textAlign: "right",
     color: "white"
   }
 });

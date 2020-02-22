@@ -1,7 +1,15 @@
 import React, { Component } from "react";
-import { Button, View, Text, ImageBackground, Clipboard, Share } from "react-native";
+import {
+  Button,
+  View,
+  Text,
+  ImageBackground,
+  Clipboard,
+  Share
+} from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import studentList from "../assets/data/quotes.json";
+import img from "../assets/images/bg.png";
 
 export default class HomeScreen extends Component {
   constructor(props) {
@@ -11,26 +19,7 @@ export default class HomeScreen extends Component {
       quoteText: "",
       quoteAuthor: "",
       isFavorite: false,
-      likedQuotes: [
-        123,
-        4012,
-        3120,
-        123,
-        1233,
-        412,
-        123,
-        4123,
-        444,
-        567,
-        24,
-        912,
-        123,
-        4123,
-        444,
-        567,
-        24,
-        912
-      ]
+      likedQuotes: []
     };
   }
 
@@ -39,24 +28,31 @@ export default class HomeScreen extends Component {
     this.randomQuote();
 
     // get liked quotes
-    this.getLikedQuotes();
+    this.getLikedQuotesFromDB();
   }
 
-  // componentDidUpdate(prevProps, prevState) {
-  //   if (this.props.route.params) {
-  //     this.prepareLikedQuote(prevState);
-  //   }
-  // }
+  getLikedQuotesFromDB() {
+    // recieve liked list from DB, then set state
+    this.setState({
+      likedQuotes: [123, 4012, 3120]
+    });
+  }
+
+  updateLikedQuotesFromDB() {}
 
   randomQuote() {
+    // calculate length of entire json
+    let size = studentList.length;
+
     // generate random number
-    let random = Math.floor(Math.random() * (5420 - 1 + 1)) + 1;
-    let tempFavorited = false;
+    let random = Math.floor(Math.random() * (size - 1 + 1)) + 1;
 
     // recieve liked quotes list from state
     let likedQuotesArr = [];
     likedQuotesArr = this.state.likedQuotes;
 
+    // check item is favorited or not
+    let favorited = false;
     for (let index = 0; index < likedQuotesArr.length; index++) {
       if (random == likedQuotesArr[index]) {
         favorited = true;
@@ -68,62 +64,63 @@ export default class HomeScreen extends Component {
       quoteID: studentList[random].id,
       quoteText: studentList[random].text,
       quoteAuthor: studentList[random].author,
-      isFavorite: tempFavorited
+      isFavorite: favorited
     });
   }
 
-  prepareLikedQuote(prevState) {
-    let id = this.props.route.params["favoritedQuoteID"];
-    if (this.state.quoteID === prevState.quoteID) {
-      this.setState({
-        quoteID: studentList[id].id,
-        quoteText: studentList[id].text,
-        quoteAuthor: studentList[id].author
-      });
-    } else {
-    }
-  }
-
-  getLikedQuotes() {}
-
-  likeQuote() {
+  likeQuoteOperation() {
     // recieve selected id
     let selectedID = this.state.quoteID;
 
-    // recieve liked quotes list from state
+    // recieve liked list from state
     let likedQuotesArr = [];
     likedQuotesArr = this.state.likedQuotes;
 
-    // control that list include selected id or not
-    let existControl = true;
+    // helper variables
+    let flag = true;
+    let deletedIndex = 0;
+
+    // decide operation (like or dislike)
     for (let index = 0; index < likedQuotesArr.length; index++) {
       if (selectedID == likedQuotesArr[index]) {
-        existControl = false;
+        flag = false;
+        deletedIndex = index;
       }
     }
 
-    // if not exist, add id to list, then set state
-    if (existControl) {
-      likedQuotesArr.push(this.state.quoteID);
+    // if flag is true, add selected id to liked list and set state.
+    if (flag) {
+      likedQuotesArr.push(selectedID);
       this.setState({
-        likedQuotes: likedQuotesArr
-      });
-    } else {
-      likedQuotesArr.pop(this.state.quoteID);
-      this.setState({
-        likedQuotes: likedQuotesArr
+        likedQuotes: likedQuotesArr,
+        isFavorite: true
       });
     }
-    console.log(this.state.likedQuotes);
+    //if flag is false, remove selected id from liked list and set state.
+    else {
+      likedQuotesArr.splice(deletedIndex, 1);
+      this.setState({
+        likedQuotes: likedQuotesArr,
+        isFavorite: false
+      });
+    }
+
+    // update DB for liked list
+    this.updateLikedQuotesFromDB();
   }
 
-  onSharePress = url => {
+  onSharePress() {
     Share.share({
       title: "Paylaş",
       message: this.state.quoteText + " - " + this.state.quoteAuthor
     })
       .then(res => console.log(res))
       .catch(error => console.log(error));
+  }
+
+  copyToClipboard = async () => {
+    await Clipboard.setString(this.state.quoteText);
+    alert("Kopyalandı!");
   };
 
   navigateToFavorites() {
@@ -134,18 +131,12 @@ export default class HomeScreen extends Component {
     this.props.navigation.navigate("Settings");
   }
 
-  readFromClipboard = async () => {
-    await Clipboard.setString(this.state.quoteText);
-    alert("Kopyalandı!");
-  };
-
   render() {
+    const isFavorited = this.state.isFavorite;
+
     return (
       <ImageBackground
-        source={{
-          uri:
-            "/Users/cagatayozata/DocumentsL/Mobile Projects/quaotesApp_ReactNative/assets/images/bg.png"
-        }}
+        source={img}
         style={{ width: "100%", height: "100%" }}
       >
         <View style={{ flex: 1, paddingRight: 50, paddingLeft: 50 }}>
@@ -194,7 +185,7 @@ export default class HomeScreen extends Component {
             }}
           >
             <View>
-              <View onStartShouldSetResponder={() => this.readFromClipboard()}>
+              <View onStartShouldSetResponder={() => this.copyToClipboard()}>
                 <Text
                   style={{ fontSize: 25, textAlign: "center", color: "white" }}
                 >
@@ -221,14 +212,14 @@ export default class HomeScreen extends Component {
             }}
           >
             <View
-              onStartShouldSetResponder={() => this.likeQuote()}
+              onStartShouldSetResponder={() => this.likeQuoteOperation()}
               style={{
                 flex: 2,
                 alignItems: "center"
               }}
             >
               <Icon
-                name="ios-heart"
+                name={isFavorited ? "ios-heart-dislike" : "ios-heart"}
                 color="#fff"
                 size={30}
                 style={{ paddingBottom: 10 }}
@@ -236,7 +227,7 @@ export default class HomeScreen extends Component {
               <Text
                 style={{ fontSize: 18, textAlign: "center", color: "white" }}
               >
-                Beğen
+                {isFavorited ? "Favorilerden Çıkar" : "Favorilere Ekle"}
               </Text>
             </View>
             <View

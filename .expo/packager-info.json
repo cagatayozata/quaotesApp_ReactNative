@@ -1,9 +1,9 @@
 {
-  "devToolsPort": 19002,
+  "devToolsPort": 19003,
   "expoServerPort": 19000,
   "packagerPort": 19001,
-  "packagerPid": 763,
-  "expoServerNgrokUrl": null,
-  "packagerNgrokUrl": null,
-  "ngrokPid": null
+  "packagerPid": 1578,
+  "expoServerNgrokUrl": "https://b2-8f6.anonymous.quaotesapp-reactnative.exp.direct",
+  "packagerNgrokUrl": "https://packager.b2-8f6.anonymous.quaotesapp-reactnative.exp.direct",
+  "ngrokPid": 1588
 }
